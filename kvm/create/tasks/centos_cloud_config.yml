@@ -1,0 +1,21 @@
+---
+- name: Create cloud config image
+  template:
+    dest: "{{ cd_images_path }}/{{ result_domain_name }}.cloud-config"
+    src: "centos-cloud-config.yml.j2"
+
+- name: Create interfaces file
+  template:
+    dest: "{{ cd_images_path }}/{{ result_domain_name }}.ifaces"
+    src: "interfaces.j2"
+
+- name: Create cloud config
+  command: >
+    cloud-localds -m local -i 
+      {{ result_domain_name }}.ifaces
+      {{ result_domain_name }}.cloud-config.img
+      {{ result_domain_name }}.cloud-config
+  args:
+    chdir: "{{ cd_images_path }}"
+
+
