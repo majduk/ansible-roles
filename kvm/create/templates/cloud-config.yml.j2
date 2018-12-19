@@ -1,0 +1,84 @@
+#cloud-config
+# {{ ansible_managed }}
+
+{% if result_domain_name -%}
+hostname: {{ result_domain_name }}
+manage_etc_hosts: True
+{%- endif %}
+
+user: {{ vm.user }}
+password: {{ vm.password }}
+plain_text_passwd: {{ vm.password }}
+chpasswd: { expire: False }
+disable_root: false
+
+{% if vm.ssh_user_keys %}
+ssh_authorized_keys: 
+{% for key in vm.ssh_user_keys %}
+  - {{ key }}
+{% endfor %}
+{% endif %} 
+
+# Add users to the system. Users are added after groups are added.
+users:
+  - name: juju
+    gecos: Juju,,,
+    lock-passwd: true
+
+
+{% if vm.apt_http_proxy -%}
+apt_proxy: {{ vm.apt_http_proxy }}
+{%- endif %}
+
+{% if cd_apt_repositories and cd_apt_use_localrepo -%}
+apt:
+  primary:
+    - arches: [default]
+      uri: {{ local_repo1_url }}
+  sources:
+{% for item in cd_apt_repositories[vm.ubuntu_release] -%}
+{% if item.has_key('key') %}
+    localrepo: 
+      key: {{item.key | to_nice_yaml }}
+{% endif %}
+{%- endfor %}
+{%- endif %}
+
+
+{% if vm.netplan_config is defined -%}
+write_files:
+  - path: /etc/netplan/50-cloud-init.yaml
+    content: {{vm.netplan_config | to_nice_yaml}}
+{% for key in vm.ssh_user_keys %}
+  - path: /root/.ssh/authorized_keys
+    content: |
+      {{key}}
+{% endfor %}
+runcmd:
+  - netplan apply
+{%- endif %}
+
+{% if vm.network_config is defined -%}
+write_files:
+  - path: /etc/network/interfaces
+    content: {{vm.network_config | to_nice_yaml}}
+  - path: /etc/network/interfaces.d/50-cloud-init.cfg
+    content: |
+      # deleted by ansible 
+{% for key in vm.ssh_user_keys %}
+  - path: /root/.ssh/authorized_keys
+    content: |
+      {{key}}
+{% endfor %}
+{%- endif %}
+
+
+
+
+{% if vm.packages -%}
+packages:
+{% for item in vm.packages %}
+  - {{item}}
+{% endfor -%}
+{%- endif -%}
+

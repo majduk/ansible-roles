@@ -1,0 +1,11 @@
+---
+- name: list running domain names
+  command: virsh -q list --name --all
+  changed_when: no
+  register: vm_list
+
+- name: extract running domain names
+  set_fact:
+    existing_vms: "{{ vm_list.stdout_lines }}"
+
+

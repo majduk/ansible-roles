@@ -1,0 +1,15 @@
+---
+- name: Cloud Deployer - Download image disk
+  get_url:
+    url: "{{ cd_images_ubuntu_cloud_image_url }}"
+    dest: "{{ cd_images_path }}/{{ cd_images_ubuntu_cloud_image_dist }}"
+  register: cd_images_ubuntu_cloud_download_result
+  when: not cd_check_hash_and_signature 
+
+- name: Cloud Deployer - Download image disk
+  get_url:
+    url: "{{ cd_images_ubuntu_cloud_image_url }}"
+    sha256sum: "{{ cd_images_ubuntu_cloud_image_sha256 }}"
+    dest: "{{ cd_images_path }}/{{ cd_images_ubuntu_cloud_image_dist }}"
+  register: cd_images_ubuntu_cloud_download_result
+  when: cd_check_hash_and_signature 

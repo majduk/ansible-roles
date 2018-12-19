@@ -1,0 +1,20 @@
+---
+- name: list running domain names
+  command: virsh -q list --name
+  changed_when: no
+  register: vm_list
+
+- name: extract running domain names
+  set_fact:
+    running_vms: "{{ vm_list.stdout_lines }}"
+
+- name: Destroy VM 
+  shell: >
+    virsh destroy "{{ vm.name }}";
+    while virsh list | grep -q -F " {{ vm.name }} "; do
+      sleep 5
+    done
+  register: shutdown_result
+  until: shutdown_result.rc == 0
+  when: vm.name in running_vms
+

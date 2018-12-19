@@ -1,0 +1,12 @@
+---
+- name: Cloud Deployer - Set facts directory
+  file: path={{ ansible_facts_path }} state=directory recurse=yes
+
+- name: Cloud Deployer - Facts ubuntu image path
+  ini_file:
+    dest: "{{ ansible_facts_path }}/cd.fact"
+    section: "facts"
+    create: yes
+    option: "{{cd_ubuntu_release}}_image_path"
+    value: "{{ cd_images_path }}/{{ cd_images_ubuntu_cloud_image_name }}"
+

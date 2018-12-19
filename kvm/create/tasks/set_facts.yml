@@ -1,0 +1,15 @@
+---
+- name: Set facts directory
+  file:
+    path: "{{ ansible_facts_path }}"
+    state: directory
+    recurse: yes
+
+  #- name: Save facts 
+  #  template:
+  #  dest: "{{ ansible_facts_path }}/vms.fact"
+  #  src: domains.j2
+
+- name: Reload facts
+  setup:
+    filter: ansible_local

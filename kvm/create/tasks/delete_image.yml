@@ -1,0 +1,20 @@
+---
+- name: Delete Image
+  file: path="{{ cd_images_path }}/{{ result_domain_name }}.img" state=absent 
+  when: cloud_deployer_force 
+- name: Delete Cloud config image
+  file: path="{{ cd_images_path }}/{{ result_domain_name }}.cloud-config.img" state=absent 
+  when: cloud_deployer_force 
+- name: Delete Cloud Config
+  file: path="{{ cd_images_path }}/{{ result_domain_name }}.cloud-config" state=absent 
+  when: cloud_deployer_force 
+- name: Delete Ifaces
+  file: path="{{ cd_images_path }}/{{ result_domain_name }}.ifaces" state=absent 
+  when: cloud_deployer_force 
+
+
+
+
+  #- name: Delete previous Volume  from Pool
+  #command: >
+  #    virsh vol-delete {{result_domain_name}}.img --pool default

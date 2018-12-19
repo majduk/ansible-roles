@@ -1,0 +1,93 @@
+<!-- {{ ansible_managed }} -->
+<domain type='kvm'>
+  <name>{{ result_domain_name }}</name>
+{% if vm.domain_title %}
+  <title>{{ vm.domain_title }}</title>
+{% endif %}
+{% if vm.domain_description %}
+  <description>{{ vm.domain_description }}</description>
+{% endif %}
+  <memory unit='{{ vm.memory
+    | regex_replace('^\\d+([a-zA-Z]*)$', '\\1')
+    | default('MiB', true) }}'>{{ vm.memory
+      | regex_replace('^(\\d+).*$', '\\1')
+      | default('512', true) }}</memory>
+  <os>
+    <type
+      {%- if vm.os.type_arch is defined %} arch='{{ vm.os.type_arch }}'{% endif -%}
+      {%- if vm.os.type_machine is defined %} machine='{{ vm.os.type_machine }}'{% endif -%}
+      >{{ vm.os.type | default('hvm', true) }}</type>
+{% for boot in vm.os.boot | default(['hd'], true) %}
+    <boot dev="{{ boot }}" />
+{% endfor %}
+  </os>
+  <features>
+{% for feature in vm.features %}
+    <{{ feature }}/>
+{% endfor %}
+  </features>
+  <vcpu placement="{{ vm.vcpu_placement }}"{% if vm.vcpu_cpuset %} cpuset="{{ vm.vcpu_cpuset | join(',') }}"{% endif %}>{{ vm.vcpu }}</vcpu>
+  <cpu match='{{ vm.cpu.match | default('exact') }}' mode='{{ vm.cpu.mode | default('custom') }}'>
+{% if vm.cpu.model is defined or vm.cpu.model_fallback is defined %}
+    <model fallback="{{ vm.cpu.model_fallback | default('allow', true) }}">{{ vm.cpu.model | default('') }}</model>
+{% endif %}
+{% if vm.cpu.vendor is defined %}
+    <vendor>{{ vm.cpu.vendor }}</vendor>
+{% endif %}
+{% if vm.cpu.topology is defined %}
+    <topology sockets='{{ vm.cpu.topology.sockets | default(1, true) }}' cores='{{ vm.cpu.topology.cores | default(1, true) }}' threads='{{ vm.cpu.topology.threads | default(1, true) }}'/>
+{% endif %}
+{% if vm.cpu.features is defined %}
+{%   for feature in vm.cpu.features %}
+    <feature policy='{{ (feature.policy if feature is mapping and feature.policy is defined else '') | default('require', true) }}' name='{{ feature.name if feature is mapping else feature }}' />
+{%   endfor %}
+{% endif %}
+  </cpu>
+  <devices>
+    <disk type='file' device='disk'>
+      <driver type='qcow2' cache='writeback'/>
+      <source file='{{ cd_images_path }}/{{ result_domain_name }}.img'/>
+      <target dev='vda' bus='virtio'/>
+    </disk>
+{% if vm.init_mode == 'cloud-config' %}
+    <disk type='file' device='disk'>
+      <source file='{{ cd_images_path }}/{{ result_domain_name }}.cloud-config.img'/>
+      <target dev='vdb' bus='virtio'/>
+    </disk>
+{% endif %}
+{% if vm.init_mode == 'configdrive' %}
+    <disk type='file' device='cdrom'>
+      <source file='{{ cd_images_path }}/{{ result_domain_name }}.configdrive.iso'/>
+      <target dev='hda' bus='ide'/>
+    </disk>
+{% endif %}
+{% for iface in vm.interfaces | default([]) %}
+    <interface type='bridge'>
+      <source bridge='{{ iface }}'/>
+      <model type='virtio'/>
+    </interface>
+{% endfor %}
+    <serial type='pty'>
+      <target port='0'/>
+    </serial>
+{% if vm.serial_console %}
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+{% endif %}
+{% if vm.vnc %}
+    <controller type='virtio-serial' index='0' />
+    <channel type='spicevmc'>
+      <target type='virtio' name='com.redhat.spice.0'/>
+      <address type='virtio-serial' controller='0' bus='0' port='1'/>
+    </channel>
+    <input type='tablet' bus='usb'/>
+    <input type='mouse' bus='ps2'/>
+    <input type='keyboard' bus='ps2'/>
+    <graphics type='spice' autoport='yes'/>
+    <video>
+      <model type='qxl' ram='65536' vram='65536' heads='1'/>
+    </video>
+{% endif %}
+  </devices>
+</domain>

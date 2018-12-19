@@ -1,0 +1,16 @@
+---
+- name: Calculate image size
+  command: stat -Lc%s {{result_domain_name}}.img
+  register: image_size
+
+- name: Create Volume in default pool
+  command: >
+    virsh vol-create-as default {{result_domain_name}}.img {{image_size.stdout}} --format qcow
+  args:
+    chdir: "{{ cd_images_path }}" 
+
+- name: Upload the Volume in default pool
+  command: >
+    virsh vol-upload --pool default {{result_domain_name}}.img {{result_domain_name}}.img 
+  args:
+    chdir: "{{ cd_images_path }}" 

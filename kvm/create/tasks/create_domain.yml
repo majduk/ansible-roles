@@ -1,0 +1,13 @@
+---
+- name: Create machine xml template
+  template:
+    dest: "/tmp/{{ result_domain_name }}.xml"
+    src: "machine.xml.j2"
+
+- name: Define domain
+  command: "virsh define /tmp/{{ result_domain_name }}.xml"
+
+- name: Delete arp for the new domain
+  shell: "arp -d {{vm.ip}} || true"
+
+

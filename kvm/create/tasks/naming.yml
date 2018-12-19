@@ -1,0 +1,33 @@
+---
+- name: Check VM name
+  assert:
+    that: >
+      (vm.result_domain_name is not defined)
+      or (vm.name is not defined)
+      or (vm.name != vm.result_domain_name)
+  tags:
+  - facts
+
+- name: VM name not defined using uuid 
+  command: uuidgen
+  changed_when: no
+  register: domain_uuid_result
+  when: >
+    (vm.name is not defined)
+    or (not vm.name)
+  tags:
+      - facts
+
+- name: Set VM name
+  set_fact:
+    result_domain_name: >-  
+      {{
+       vm.name
+          if (vm.name is defined)
+            and vm.name
+          else
+        domain_uuid_result.stdout | trim
+      }}
+  tags:
+  - facts
+

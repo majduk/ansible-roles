@@ -1,0 +1,7 @@
+---
+- name: Load Remote Facts
+  setup: 
+    filter: ansible_local
+- include: build.yml vm={{ default_vm | combine(item)}}
+  with_items: "{{cloud_deployer_vms.values()}}"
+- include: set_facts.yml

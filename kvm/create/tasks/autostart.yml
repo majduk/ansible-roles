@@ -1,0 +1,14 @@
+---
+- name: Get autostart list 
+  command: virsh list --autostart --name
+  changed_when: no
+  register: list_autostart_result
+
+- name: autostart | enable
+  command: "virsh autostart {{ result_domain_name }}"
+  when: vm.autostart and (result_domain_name not in list_autostart_result.stdout_lines)
+
+- name: autostart | disable
+  command: "virsh autostart {{ vm.result_domain_name }} --disable"
+  when: not vm.autostart and (result_domain_name in list_autostart_result.stdout_lines)
+

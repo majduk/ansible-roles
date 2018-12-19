@@ -1,0 +1,9 @@
+---
+- name: Waiting for "{{vm.name}}" via ssh
+  when: not vm.define_only
+  wait_for:
+    host: "{{ vm.ip }}"
+    port: 22
+    search_regex: OpenSSH
+    timeout: 120 # seconds
+

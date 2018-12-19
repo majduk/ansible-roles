@@ -1,0 +1,6 @@
+{
+{% for x in ([[result_domain_name, domain_fact_template]]
+              + ((ansible_local | default({})).domains | default({})).items()) %}
+{{ x[0] | to_nice_json }}:{{ x[1] | to_nice_json }}{{ '' if loop.last else ',' }}
+{% endfor %}
+}

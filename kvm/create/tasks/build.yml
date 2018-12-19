@@ -1,0 +1,22 @@
+---
+- debug: var=vm
+- include: get_running.yml
+- include: naming.yml
+- include: shutdown.yml
+  when: cloud_deployer_force and (vm.name in existing_vms)
+- include: undefine.yml
+  when: cloud_deployer_force and (vm.name in existing_vms)
+- include: delete_image.yml
+  when: cloud_deployer_force and (vm.name in existing_vms)
+- include: create_image.yml
+  when: cloud_deployer_force or not (vm.name in existing_vms)
+- include: cloud_config.yml
+  when: cloud_deployer_force or not (vm.name in existing_vms)
+- include: create_domain.yml
+  when: cloud_deployer_force or not (vm.name in existing_vms)
+- include: autostart.yml
+  when: cloud_deployer_force or not (vm.name in existing_vms)
+- include: start_domain.yml
+  when: cloud_deployer_force or not (vm.name in existing_vms)
+- include: wait_for_vm.yml 
+  when: cloud_deployer_force or not (vm.name in existing_vms)

@@ -1,0 +1,44 @@
+---
+- name: Cloud Deployer - download hashes and signature
+  get_url:
+    url: "{{ cd_images_ubuntu_cloud_url_base }}/{{ item }}"
+    dest: "{{ cd_images_ubuntu_cloud_tmp_folder }}/{{ item }}"
+    force: yes
+  changed_when: no
+  with_flattened:
+  - "{{ cd_images_ubuntu_cloud_sha256sums }}"
+  - "{{ cd_images_ubuntu_cloud_sha256sums_gpg }}"
+
+- name: Cloud Deployer - Check GPG keys
+  command: >
+    gpg
+    --list-keys {{ cd_images_ubuntu_cloud_gpg_keys }}
+  failed_when: no
+  changed_when: no
+  register: cd_images_ubuntu_cloud_gpg_result
+
+- name: Cloud Deployer - Import GPG key
+  command: >
+    gpg
+    --keyserver {{ cd_images_ubuntu_cloud_gpg_key_server }}
+    --recv-keys {{ cd_images_ubuntu_cloud_gpg_keys }}
+  when: cd_images_ubuntu_cloud_gpg_result.rc != 0
+
+- name: Cloud Deployer - Check image signature
+  shell: >
+    gpg
+    --verify {{ cd_images_ubuntu_cloud_sha256sums_gpg }}
+    {{ cd_images_ubuntu_cloud_sha256sums }}
+    &&
+    cat {{ cd_images_ubuntu_cloud_sha256sums }}
+    | grep {{ cd_images_ubuntu_cloud_image_url | basename }}
+    | cut -f 1 -d " "
+  args:
+    chdir: "{{ cd_images_ubuntu_cloud_tmp_folder }}"
+  changed_when: no
+  register: cd_images_ubuntu_cloud_sha256_result
+
+- name: Cloud Deployer - Save sha256sum
+  set_fact:
+    cd_images_ubuntu_cloud_image_sha256: "{{ cd_images_ubuntu_cloud_sha256_result.stdout }}"
+

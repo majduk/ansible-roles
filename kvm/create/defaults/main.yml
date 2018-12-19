@@ -1,0 +1,86 @@
+---
+default_vm:
+    # Domain info
+    domain_groups: [] 
+    domain_name: 
+    domain_title: 'default vm' 
+    domain_description: '' 
+
+    # VM configuration
+    memory: "4096MiB" 
+    vcpu: 4
+    vcpu_placement: 'static' 
+    vcpu_cpuset: [] 
+    networks: ['default'] 
+    disk_size: "20G" 
+    features: ['acpi', 'apic', 'pae']
+    arch: amd64
+    pool: default 
+    user: ubuntu
+    password: ubuntu
+    cpu:
+      mode: 'host-model'
+    cpu_fast:
+      mode: 'host-model'
+   
+    # VM features
+    serial_console: yes 
+    vnc: no
+    autostart: yes 
+    define_only: no
+
+    # VM installation types:
+    install_type: 'base-image'
+    base_image: ""
+    base_image_mode: 'copy' 
+    extra_disks: []
+
+    # VM cloud config templating
+    init_mode: 'cloud-config' 
+    cloud_config_users:
+    - name: 'dtadmin'
+      gecos: 'dtadmin'
+      plain_text_passwd: 'ubuntu'
+      shell: '/bin/bash'
+      sudo: 'ALL=(ALL) NOPASSWD:ALL'
+      groups: 'adm, audio, cdrom, dialout, floppy, video, plugdev, dip, netdev'
+    packages: [ 'python-minimal', 'python-apt', 'bridge-utils']
+    ssh_user_keys: "{{ deploy_authorized_keys | default() }}"
+    apt_http_proxy: ""
+    network_config: ""
+
+    # VM extra vars
+    os_virtualized_x86_64:
+      type: 'hvm'
+      type_arch: 'x86_64'
+    os_virtualized_x86:
+      type: 'hvm'
+      type_arch: 'i686'
+    cpu_migratable:
+      match: 'exact' # options 'minimum', 'exact', 'strict'
+      mode: 'custom' # options 'custom', 'host-model', 'host-passthrough'
+    os: 
+      type: 'hvm'
+      type_arch: 'x86_64'
+
+    ip: 0.0.0.0
+    local_apt_repo: 127.0.0.1
+    ubuntu_release: "xenial"
+    roles: []
+
+cd_delete_uploaded_image: no 
+cd_images_path: "/var/lib/libvirt/images" 
+ansible_facts_path: '/etc/ansible/facts.d'
+domain_fact_template: >
+    {
+    u"groups": {{ default_vm.domain_groups }}
+    }
+
+cd_base_images: 
+    trusty: "{{ ansible_local.cd.facts.trusty_image_path }}"
+    xenial: "{{ ansible_local.cd.facts.xenial_image_path }}"
+    bionic: "{{ ansible_local.cd.facts.bionic_image_path }}"
+
+cd_apt_repositories: [] 
+cd_apt_use_localrepo: no
+cloud_deployer_vms: {}

@@ -1,0 +1,2 @@
+---
+cd_host_qemu_machine_hooks_folder: '/etc/libvirt/qemu_machine_hooks'

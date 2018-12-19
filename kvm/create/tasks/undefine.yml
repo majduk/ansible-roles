@@ -1,0 +1,13 @@
+---
+- name: list all domain names
+  command: virsh -q list --all --name
+  changed_when: no
+  register: vm_list
+
+- name: extract all domain name
+  set_fact:
+    defined_vms: "{{ vm_list.stdout_lines }}"
+
+- name: undefine machine
+  command: virsh undefine "{{ vm.name }}" --remove-all-storage
+  when: vm.name in defined_vms

@@ -1,0 +1,12 @@
+---
+- name: Cloud Deployer - Remove modified image
+  file:
+    path: "{{ cd_images_path }}/{{ cd_images_ubuntu_cloud_image_name }}"
+    state: absent
+  when: cd_images_ubuntu_cloud_download_result.changed
+
+- name: Cloud Deployer - Convert the image
+  command: "qemu-img convert -O qcow2 {{ cd_images_ubuntu_cloud_image_dist }} {{ cd_images_ubuntu_cloud_image_name }}"
+  args:
+    chdir: "{{ cd_images_path }}"
+    creates: "{{ cd_images_path }}/{{ cd_images_ubuntu_cloud_image_name }}"

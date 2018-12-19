@@ -1,0 +1,32 @@
+---
+# Ubuntu Cloud image url
+cd_images_ubuntu_cloud_image_url: "https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img"
+cd_ubuntu_release: trusty
+cd_check_hash_and_signature: False
+
+# checksums and signatures for the image
+cd_images_ubuntu_cloud_url_base: "{{ cd_images_ubuntu_cloud_image_url | dirname  }}"
+cd_images_ubuntu_cloud_sha256sums: "SHA256SUMS" 
+cd_images_ubuntu_cloud_sha256sums_gpg: "SHA256SUMS.gpg" 
+
+# pgp data used to verify integrity of the gpg file
+cd_images_ubuntu_cloud_gpg_key_server: "hkp://keyserver.ubuntu.com"
+cd_images_ubuntu_cloud_gpg_keys: "D2EB44626FDDC30B513D5BB71A5D6C4C7DB87C81"
+
+# name of the image downloaded
+cd_images_ubuntu_cloud_image_dist: "{{ cd_images_ubuntu_cloud_image_url | basename }}.dist"
+
+# name of the converted image
+cd_images_ubuntu_cloud_image_name: "converted-{{ cd_images_ubuntu_cloud_image_url | basename }}"
+
+# path where the images are stored
+cd_images_path: "/var/lib/libvirt/images"
+cd_images_ubuntu_cloud_tmp_folder: '/tmp'
+
+ansible_facts_path: '/etc/ansible/facts.d' 
+
+# resulting facts:
+# ----------------
+#
+# cd_images_ubuntu_cloud_image_sha256 - the sha256 of the disk image
+# cd_ubuntu_cloud_image_path - the full path to the disk image
