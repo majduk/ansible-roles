@@ -38,8 +38,8 @@ default_vm:
     # VM cloud config templating
     init_mode: 'cloud-config' 
     cloud_config_users:
-    - name: 'dtadmin'
-      gecos: 'dtadmin'
+    - name: 'ubuntu'
+      gecos: 'ubuntu'
       plain_text_passwd: 'ubuntu'
       shell: '/bin/bash'
       sudo: 'ALL=(ALL) NOPASSWD:ALL'
@@ -47,7 +47,6 @@ default_vm:
     packages: [ 'python-minimal', 'python-apt', 'bridge-utils']
     ssh_user_keys: "{{ deploy_authorized_keys | default() }}"
     apt_http_proxy: ""
-    network_config: ""
 
     # VM extra vars
     os_virtualized_x86_64:
