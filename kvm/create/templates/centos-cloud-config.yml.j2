@@ -1,0 +1,70 @@
+#cloud-config
+# {{ ansible_managed }}
+
+{% if result_domain_name -%}
+hostname: {{ result_domain_name }}
+manage_etc_hosts: True
+{%- endif %}
+
+user: {{ vm.user }}
+password: {{ vm.password }}
+plain_text_passwd: {{ vm.password }}
+chpasswd: { expire: False }
+ssh_pwauth: True
+disable_root: false
+
+{% if vm.ssh_user_keys %}
+ssh_authorized_keys: 
+{% for key in vm.ssh_user_keys %}
+  - {{ key }}
+{% endfor %}
+{% endif %} 
+
+
+
+{% if vm.network_config -%}
+write_files:
+{% for key in vm.ssh_user_keys %}
+  - path: /root/.ssh/authorized_keys
+    content: |
+      {{key}}
+{% endfor %}
+
+{% for iface in vm.network_ifaces %}
+  - path: /etc/sysconfig/network-scripts/ifcfg-{{iface.name}}
+    content: |
+      {{iface.config}}
+{% endfor %}
+
+
+{% if vm.yum_proxy is defined %}
+  - path: /etc/yum.conf
+    content: | 
+      [main]
+      cachedir=/var/cache/yum/$basearch/$releasever
+      keepcache=0
+      debuglevel=2
+      logfile=/var/log/yum.log
+      exactarch=1
+      obsoletes=1
+      gpgcheck=1
+      plugins=1
+      installonly_limit=5
+      distroverpkg=centos-release
+      proxy={{vm.yum_proxy}}
+{% endif %}
+
+{%- endif %}
+
+{% if vm.packages -%}
+packages:
+{% for item in vm.packages %}
+  - {{item}}
+{% endfor -%}
+{%- endif -%}
+
+runcmd:
+  - [ reboot ]
+
+
+

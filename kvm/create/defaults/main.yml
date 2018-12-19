@@ -80,6 +80,7 @@ cd_base_images:
     trusty: "{{ ansible_local.cd.facts.trusty_image_path }}"
     xenial: "{{ ansible_local.cd.facts.xenial_image_path }}"
     bionic: "{{ ansible_local.cd.facts.bionic_image_path }}"
+    centos7: "{{ ansible_local.cd.facts.centos7_image_path }}"
 
 cd_apt_repositories: [] 
 cd_apt_use_localrepo: no
