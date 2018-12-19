@@ -7,6 +7,6 @@
     dest: "{{ ansible_facts_path }}/cd.fact"
     section: "facts"
     create: yes
-    option: "{{cd_ubuntu_release}}_image_path"
-    value: "{{ cd_images_path }}/{{ cd_images_ubuntu_cloud_image_name }}"
+    option: "{{cd_distro_release}}_image_path"
+    value: "{{ cd_images_path }}/{{ cd_images_distro_cloud_image_name }}"
 

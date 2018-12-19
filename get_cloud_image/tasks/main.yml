@@ -4,4 +4,4 @@
 - include: download.yml
 - include: convert.yml 
 - include: store_facts.yml
-  #  when: cd_images_ubuntu_cloud_download_result.changed
+  #  when: cd_images_distro_cloud_download_result.changed
