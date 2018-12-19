@@ -1,0 +1,5 @@
+---
+   - name: Load drivers
+     raw: |
+       echo 'bonding' > /etc/modules-load.d/openstack-ansible.conf
+       echo '8021q' >> /etc/modules-load.d/openstack-ansible.conf

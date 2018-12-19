@@ -1,0 +1,32 @@
+{% if item.bootproto == 'static' %}
+DEVICE={{ item.device }}
+USERCTL=no
+BOOTPROTO=none
+DEVICE=teamM
+DEVICETYPE=Team
+NM_CONTROLED=no
+TEAM_CONFIG='{"runner":{"name":"{{item.team_config}}"},"link_watch":{"name":"ethtool"}}'
+{% if item.bridge is defined %}
+BRIDGE={{ item.bridge }}
+{% endif %}
+{% if item.address is defined %}
+IPADDR={{ item.address }}
+{% endif %}
+{% if item.onboot is defined %}
+ONBOOT={{ item.onboot|default("yes") }}
+{% endif %}
+{% if item.netmask is defined %}
+NETMASK={{ item.netmask }}
+{% endif %}
+{% if item.gateway is defined %}
+GATEWAY={{ item.gateway }}
+{% endif %}
+{% endif %}
+
+{% if item.bootproto == 'dhcp' %}
+DEVICE={{ item.device }}
+BONDING_OPTS="mode={{ item.bond_mode }} miimon={{ item.bond_miimon|default(100) }} "
+USERCTL=no
+ONBOOT={{ item.onboot|default("yes") }}
+BOOTPROTO=dhcp
+{% endif %}

@@ -1,0 +1,16 @@
+---
+- name: Upgrade system
+  raw:  export http_proxy="{{proxy_env.http_proxy}}"; \
+        export https_proxy="{{proxy_env.http_proxy}}"; \
+        yum upgrade -y
+  when: proxy_env is defined and run_upgrade
+
+- name: Upgrade system
+  raw:  yum upgrade -y
+  when: run_upgrade
+
+- name: Install required yum packages
+  yum: name={{item}} state=present update_cache=yes
+  become: yes
+  with_items: "{{packages}}"
+

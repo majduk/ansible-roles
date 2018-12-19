@@ -1,0 +1,20 @@
+---
+- name: Install the required packages 
+  apt: 
+    name: ntp 
+    state: present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Install the required packages 
+  yum: 
+    name: ntp 
+    state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Copy the ntp.conf template file
+  template: 
+    src: ntp.conf.j2 
+    dest: /etc/ntp.conf
+  notify:
+  - restart ntp
+

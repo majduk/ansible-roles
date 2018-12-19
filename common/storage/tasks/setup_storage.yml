@@ -1,0 +1,26 @@
+---
+- name: Create filesystems
+  filesystem:
+    fstype: "{{item.fstype}}"
+    dev: "{{item.dev}}"
+  with_items:  "{{storage}}"
+  when:  storage is defined
+
+  #- name: Sync var... - this is requred before full maas centos support
+  #
+  #mkdir /mnt/var
+  #mount /dev/vdc1 /mnt/var
+  #rsync -a /var/ /mnt/var/
+  #mv /var /var.old
+  #mkdir /var
+
+- name: Mount filesystem
+  mount:
+    name: "{{item.mountpoint}}"
+    src: "{{item.dev}}"    
+    fstype: "{{item.fstype}}"
+    state: mounted
+  with_items: "{{storage}}"
+  when:  storage is defined
+
+

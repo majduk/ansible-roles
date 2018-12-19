@@ -1,0 +1,34 @@
+{% if item.bootproto == 'static' %}
+DEVICE={{ item.device }}
+NAME={{ item.device }}
+TYPE=Bridge
+BOOTPROTO=static
+NM_CONTROLED=no
+USERCTL=no
+ONBOOT=yes
+DELAY=0
+{% if item.stp is defined %}
+STP={{ item.stp }}
+{% endif %}
+{% if item.address is defined %}
+IPADDR={{ item.address }}
+{% endif %}
+{% if item.onboot is defined %}
+ONBOOT={{ item.onboot }}
+{% endif %}
+{% if item.netmask is defined %}
+NETMASK={{ item.netmask }}
+{% endif %}
+{% if item.gateway is defined %}
+GATEWAY={{ item.gateway }}
+{% endif %}
+{% endif %}
+
+{% if item.bootproto == 'dhcp' %}
+DEVICE={{ item.device }}
+TYPE=Bridge
+BOOTPROTO=dhcp
+{% if item.stp is defined %}
+STP={{ item.stp }}
+{% endif %}
+{% endif %}
