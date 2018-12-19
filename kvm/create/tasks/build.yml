@@ -10,12 +10,10 @@
   when: cloud_deployer_force and (vm.name in existing_vms)
 - include: create_image.yml
   when: cloud_deployer_force or not (vm.name in existing_vms)
-- include: cloud_config.yml
-  when: cloud_deployer_force or not (vm.name in existing_vms)
 - include: ubuntu_cloud_config.yml
-  when: cloud_deployer_force or not (vm.name in existing_vms) and (vm.distro=='ubuntu')
+  when: (cloud_deployer_force or not (vm.name in existing_vms)) and (not vm.distro is defined or vm.distro=='ubuntu')
 - include: centos_cloud_config.yml
-  when: cloud_deployer_force or not (vm.name in existing_vms) and (vm.distro=='centos')
+  when: (cloud_deployer_force or not (vm.name in existing_vms)) and (vm.distro is defined and vm.distro=='centos')
 - include: create_domain.yml
   when: cloud_deployer_force or not (vm.name in existing_vms)
 - include: autostart.yml

@@ -65,7 +65,7 @@ default_vm:
 
     ip: 0.0.0.0
     local_apt_repo: 127.0.0.1
-    ubuntu_release: "xenial"
+    distro_release: "xenial"
     roles: []
 
 cd_delete_uploaded_image: no 
@@ -77,10 +77,10 @@ domain_fact_template: >
     }
 
 cd_base_images: 
-    trusty: "{{ ansible_local.cd.facts.trusty_image_path }}"
-    xenial: "{{ ansible_local.cd.facts.xenial_image_path }}"
-    bionic: "{{ ansible_local.cd.facts.bionic_image_path }}"
-    centos7: "{{ ansible_local.cd.facts.centos7_image_path }}"
+    trusty: "{{ ansible_local.cd.facts.trusty_image_path | default() }}"
+    xenial: "{{ ansible_local.cd.facts.xenial_image_path | default() }}"
+    bionic: "{{ ansible_local.cd.facts.bionic_image_path | default() }}"
+    centos7: "{{ ansible_local.cd.facts.centos7_image_path | default() }}"
 
 cd_apt_repositories: [] 
 cd_apt_use_localrepo: no

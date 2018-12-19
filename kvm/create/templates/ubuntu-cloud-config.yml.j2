@@ -36,7 +36,7 @@ apt:
     - arches: [default]
       uri: {{ local_repo1_url }}
   sources:
-{% for item in cd_apt_repositories[vm.ubuntu_release] -%}
+{% for item in cd_apt_repositories[vm.distro_release] -%}
 {% if item.has_key('key') %}
     localrepo: 
       key: {{item.key | to_nice_yaml }}
