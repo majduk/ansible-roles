@@ -46,7 +46,6 @@ default_vm:
       groups: 'adm, audio, cdrom, dialout, floppy, video, plugdev, dip, netdev'
     packages: [ 'python-minimal', 'python-apt', 'bridge-utils']
     ssh_user_keys: "{{ deploy_authorized_keys | default() }}"
-    apt_http_proxy: ""
 
     # VM extra vars
     os_virtualized_x86_64:
