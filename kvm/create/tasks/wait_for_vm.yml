@@ -1,6 +1,6 @@
 ---
 - name: Waiting for "{{vm.name}}" via ssh
-  when: not vm.define_only
+  when: not vm.define_only and vm.ip is defined
   wait_for:
     host: "{{ vm.ip }}"
     port: 22

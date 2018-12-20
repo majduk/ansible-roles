@@ -9,5 +9,5 @@
 
 - name: Delete arp for the new domain
   shell: "arp -d {{vm.ip}} || true"
-
+  when: vm.ip is defined
 

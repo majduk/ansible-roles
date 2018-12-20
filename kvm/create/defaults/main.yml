@@ -62,7 +62,6 @@ default_vm:
       type: 'hvm'
       type_arch: 'x86_64'
 
-    ip: 0.0.0.0
     local_apt_repo: 127.0.0.1
     distro_release: "xenial"
     roles: []

@@ -6,19 +6,19 @@
 
 - name: Create interfaces file
   template:
-    dest: "{{ cd_images_path }}/{{ result_domain_name }}.ifaces"
-    src: "interfaces.j2"
-  when: vm.network_config is defined
+    dest: "{{ cd_images_path }}/{{ result_domain_name }}.network-config"
+    src: "network-config.j2"
+  when: vm.network_config is defined or vm.ip is defined
 
-- name: Create cloud config with interfaces
+- name: Create cloud config with network
   command: >
-    cloud-localds -m local -i 
-      {{ result_domain_name }}.ifaces
+    cloud-localds -v -N
+      {{ result_domain_name }}.network-config
       {{ result_domain_name }}.cloud-config.img
       {{ result_domain_name }}.cloud-config
   args:
     chdir: "{{ cd_images_path }}"
-  when: vm.network_config is defined
+  when: vm.network_config is defined or vm.ip is defined
 
 - name: Create cloud config
   command: >
@@ -27,5 +27,5 @@
       {{ result_domain_name }}.cloud-config
   args:
     chdir: "{{ cd_images_path }}"
-  when: vm.network_config is not defined
+  when: vm.network_config is not defined and vm.ip is not defined
 

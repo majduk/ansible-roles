@@ -1,0 +1,21 @@
+{% if vm.network_config is defined %}
+{{vm.network_config }}
+{% elif vm.ip is defined %}
+version: 2
+ethernets:
+  ens2:
+     addresses:
+     {% if vm.netmask is defined -%}
+     - {{vm.ip}}/{{ vm.netmask }} 
+     {% elif cd_netmask is defined -%}
+     - {{vm.ip}}/{{cd_netmask}} 
+     {% else -%}
+     - {{vm.ip}}/24 
+     {% endif %}
+
+     {%- if vm.gateway is defined -%}
+     gateway4: {{vm.gateway}}
+     {%- elif cd_gateway is defined -%}
+     gateway4: {{cd_gateway}}
+     {%- endif %}
+{% endif %}

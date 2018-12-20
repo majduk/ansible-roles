@@ -26,8 +26,10 @@ users:
     lock-passwd: true
 
 
-{% if vm.apt_http_proxy -%}
+{% if vm.apt_http_proxy is defined-%}
 apt_proxy: {{ vm.apt_http_proxy }}
+{% elif cd_apt_http_proxy is defined -%}
+apt_proxy: {{ cd_apt_http_proxy }}
 {%- endif %}
 
 {% if cd_apt_repositories and cd_apt_use_localrepo -%}
@@ -43,37 +45,6 @@ apt:
 {% endif %}
 {%- endfor %}
 {%- endif %}
-
-
-{% if vm.netplan_config is defined -%}
-write_files:
-  - path: /etc/netplan/50-cloud-init.yaml
-    content: {{vm.netplan_config | to_nice_yaml}}
-{% for key in vm.ssh_user_keys %}
-  - path: /root/.ssh/authorized_keys
-    content: |
-      {{key}}
-{% endfor %}
-runcmd:
-  - netplan apply
-{%- endif %}
-
-{% if vm.network_config is defined -%}
-write_files:
-  - path: /etc/network/interfaces
-    content: {{vm.network_config | to_nice_yaml}}
-  - path: /etc/network/interfaces.d/50-cloud-init.cfg
-    content: |
-      # deleted by ansible 
-{% for key in vm.ssh_user_keys %}
-  - path: /root/.ssh/authorized_keys
-    content: |
-      {{key}}
-{% endfor %}
-{%- endif %}
-
-
-
 
 {% if vm.packages -%}
 packages:
