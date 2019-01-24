@@ -44,11 +44,13 @@
 {% endif %}
   </cpu>
   <devices>
+{% if vm.disk_size is defined %}
     <disk type='file' device='disk'>
       <driver type='qcow2' cache='writeback'/>
       <source file='{{ cd_images_path }}/{{ result_domain_name }}.img'/>
       <target dev='vda' bus='virtio'/>
     </disk>
+{% endif %}
 {% if vm.init_mode == 'cloud-config' %}
     <disk type='file' device='disk'>
       <source file='{{ cd_images_path }}/{{ result_domain_name }}.cloud-config.img'/>
@@ -60,6 +62,15 @@
       <source file='{{ cd_images_path }}/{{ result_domain_name }}.configdrive.iso'/>
       <target dev='hda' bus='ide'/>
     </disk>
+{% endif %}
+{% if vm.volumes is defined %}
+{%   for vol in vm.volumes %}
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source file='/dev/{{vm.pool}}/{{result_domain_name}}-{{ vol }}'/>
+      <target dev='{{ vol }}' bus='virtio'/>
+    </disk>
+{%   endfor %}
 {% endif %}
 {% for iface in vm.interfaces | default([]) %}
     <interface type='bridge'>

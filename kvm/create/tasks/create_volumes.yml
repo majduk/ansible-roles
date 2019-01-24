@@ -1,0 +1,22 @@
+---
+- name: List volumes 
+  shell: "virsh -q vol-list {{vm.pool}} | awk '{print $1}' | grep {{result_domain_name}} || true"
+  changed_when: no
+  register: vol_list_output
+
+- name: extract existing volumes
+  set_fact:
+    vm_volumes: "{{ vol_list_output.stdout_lines }}"
+
+- name: Delete volumes
+  command: "virsh vol-delete --pool {{vm.pool}} {{vol}}"
+  with_items: "{{vm_volumes}}"
+  loop_control:
+    loop_var: vol
+
+- name: Create volumes
+  command: "virsh vol-create-as {{vm.pool}} {{ result_domain_name }}-{{vol.key}} {{vol.value.size}}"
+  with_dict: "{{vm.volumes}}"
+  loop_control:
+    loop_var: vol
+

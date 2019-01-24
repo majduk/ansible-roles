@@ -12,7 +12,6 @@ default_vm:
     vcpu_placement: 'static' 
     vcpu_cpuset: [] 
     networks: ['default'] 
-    disk_size: "20G" 
     features: ['acpi', 'apic', 'pae']
     arch: amd64
     pool: default 

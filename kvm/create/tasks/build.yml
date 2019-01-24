@@ -7,9 +7,11 @@
 - include: undefine.yml
   when: cloud_deployer_force and (vm.name in existing_vms)
 - include: delete_image.yml
-  when: cloud_deployer_force and (vm.name in existing_vms)
+  when: cloud_deployer_force and (vm.name in existing_vms) and (vm.disk_size is defined)
 - include: create_image.yml
-  when: cloud_deployer_force or not (vm.name in existing_vms)
+  when: cloud_deployer_force or not (vm.name in existing_vms) and (vm.disk_size is defined)
+- include: create_volumes.yml
+  when: cloud_deployer_force or not (vm.name in existing_vms) and (vm.disk_size is defined)
 - include: ubuntu_cloud_config.yml
   when: (cloud_deployer_force or not (vm.name in existing_vms)) and (not vm.distro is defined or vm.distro=='ubuntu')
 - include: centos_cloud_config.yml
