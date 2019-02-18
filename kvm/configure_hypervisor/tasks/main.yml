@@ -1,5 +1,5 @@
 ---
-#- include: install_packages.yml
+- include: install_packages.yml
 - include: create_pools.yml
   with_items: "{{kvm.pools}}"
   loop_control:
