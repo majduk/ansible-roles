@@ -1,0 +1,19 @@
+---
+- name: Get available nodes
+  command: maas {{maas.profile}} machines read
+  register: machines
+
+- name: Save nodes
+  set_fact:
+     machines: "{{ machines.stdout|from_json|list }}"
+
+- name: Save Ready nodes
+  set_fact:
+    ready_machines: "{{ ready_machines| default({})|combine({item.hostname:item.system_id}) }}"
+  with_items: '{{machines}}'
+  when: item.status_name == 'Ready'
+
+- name: Ready machines 
+  debug:
+    var: ready_machines
+

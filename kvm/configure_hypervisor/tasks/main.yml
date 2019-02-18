@@ -1,0 +1,11 @@
+---
+#- include: install_packages.yml
+- include: create_pools.yml
+  with_items: "{{kvm.pools}}"
+  loop_control:
+    loop_var: virt_pool_name
+- include: create_nets.yml
+  with_items: "{{kvm.nets}}"
+  loop_control:
+    loop_var: virt_net_name
+- include: set_sysctl.yml

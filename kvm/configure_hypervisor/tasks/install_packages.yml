@@ -1,0 +1,11 @@
+---
+- name: Install required packages
+  apt: name={{item}} state=installed update_cache=yes
+  with_items:
+    - libvirt-bin
+    - python-libvirt
+    - python-lxml
+    - qemu-kvm
+    - cloud-image-utils
+    - ifenslave
+    - bridge-utils

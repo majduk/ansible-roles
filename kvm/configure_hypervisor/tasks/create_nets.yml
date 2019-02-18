@@ -1,0 +1,25 @@
+---
+- name: Check net state
+  shell: "virsh net-list | grep '^ {{virt_net_name}} ' | awk '{ print $2 }'"
+  register: net_list_output
+
+- name: "Extract net state"
+  set_fact: 
+    net_state: "{%if net_list_output.stdout_lines%}{{ net_list_output.stdout_lines[0]}}{%endif%}"
+
+- name: Create net template
+  template:
+    src: net.xml.j2
+    dest: /tmp/{{virt_net_name}}.xml
+  when: net_state == ""
+
+- name: Define net
+  shell: virsh net-define /tmp/{{virt_net_name}}.xml 
+  when: net_state == ""
+
+- name: Start net
+  shell: virsh net-start {{virt_net_name}}
+  when: net_state != "active"
+
+- name: Autostart net
+  shell: virsh net-autostart {{virt_net_name}}

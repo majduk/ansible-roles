@@ -1,0 +1,16 @@
+<pool type="logical">
+  <name>{{virt_pool_name}}</name>
+  <source>
+    <device path="/dev/sdb"/>
+    <device path="/dev/sdc"/>
+    <device path="/dev/sdd"/>
+    <device path="/dev/sde"/>
+    <device path="/dev/sdf"/>
+    <device path="/dev/sdg"/>
+    <device path="/dev/sdh"/>
+  </source>
+  <target>
+    <path>/dev/{{virt_pool_name}}</path>
+  </target>
+</pool>
+

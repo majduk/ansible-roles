@@ -1,0 +1,3 @@
+---
+- include: get_nodes.yml
+- include: create_vlan_ifaces.yml

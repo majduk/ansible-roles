@@ -1,0 +1,7 @@
+---
+kvm:
+  pools: 
+    - libvirtVG
+  nets:
+    - oam
+    - prod
