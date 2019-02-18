@@ -1,7 +1,8 @@
 # KVM VM create
 
-Example of playbook using this module:
+## Examples
 
+### Create 2 VMs with IPs
 ```
 #!/usr/bin/env ansible-playbook
 
@@ -27,6 +28,60 @@ Example of playbook using this module:
     - kvm/create
 ```
 
+### Create a set of VMs with multiple disks
+
+```
+#!/usr/bin/env ansible-playbook
+
+- hosts: reeves
+  become: yes
+  vars:
+    default_vm:
+      define_only: yes
+      vcpu: 16
+      memory: "16384MiB"
+      pool: libvirtVG
+      volumes:
+        vda:
+          size: 10G
+        vdb:
+          size: 10G
+        vdc:
+          size: 10G
+        vdd:
+          size: 10G
+        vde:
+          size: 10G
+      interfaces: ['br-oam', 'br-prod', 'br-back']
+      init_mode: "none"
+      distro: "none"
+      os:
+        boot: ["network", "hd"]
+    cloud_deployer_vms:
+      vm1:
+        name: "reeves-vm1"
+      vm2:
+        name: "reeves-vm2"
+      vm3:
+        name: "reeves-vm3"
+      vm4:
+        name: "reeves-vm4"
+      vm5:
+        name: "reeves-vm5"
+      vm6:
+        name: "reeves-vm6"
+      vm7:
+        name: "reeves-vm7"
+      vm8:
+        name: "reeves-vm8"
+      vm9:
+        name: "reeves-vm9"
+  roles:
+    - kvm/create
+```
+
+## Parameters
+
 Global parameters (with defaults):
 - cloud_deployer_force: no - redeploy running VMs or keep them
 - cd_apt_http_proxy - global APT proxy
@@ -40,3 +95,5 @@ VM parameters (with defaults):
 - interfaces - which hypervisor bridges attach VM to
 - ssh_user_keys
 - define_only: no - only define a VM or define and start
+- pool - which storage pool should be used
+- volumes - list of volumes with sizes the VM should have
