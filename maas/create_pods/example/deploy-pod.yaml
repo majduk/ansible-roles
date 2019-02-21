@@ -1,0 +1,143 @@
+#!/usr/bin/env ansible-playbook
+
+
+- hosts: kearns
+  gather_facts: False
+  become: true
+  tasks:
+  - name: install python 2
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+- hosts: kearns
+  become: true
+  roles:
+    - kvm/configure_hypervisor
+
+# exchange MAAS keys
+- hosts: maas-hosts
+  become: true
+  gather_facts: True
+  become_user: maas
+  tasks:
+    - name: Download maas keys
+      fetch:
+        flat: true
+        src: "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
+        dest: "/tmp/maas-keys/{{ inventory_hostname }}.pub"
+
+- hosts: kearns
+  tasks:
+    - name: Authorize keys
+      authorized_key:
+        user: "{{ansible_env.USER}}"
+        key: "{{ lookup('file',item) }}"
+      with_fileglob:
+        - "/tmp/maas-keys/*"
+# deploy VMs to pod
+- hosts: kearns
+  become: yes
+  vars:
+    default_vm:
+      force_redeploy: false
+      define_only: yes
+      vcpu: 16
+      memory: "16384MiB"
+      pool: libvirtVG
+      volumes:
+        vda:
+          size: 10G
+        vdb:
+          size: 10G
+        vdc:
+          size: 10G
+        vdd:
+          size: 10G
+        vde:
+          size: 10G
+      interfaces: ['br-oam', 'br-prod', 'br-back']
+      init_mode: "none"
+      distro: "none"
+      os:
+        boot: ["network", "hd"]
+    cloud_deployer_vms:
+      vm1:
+        name: "kearns-vm1"
+      vm2:
+        name: "kearns-vm2"
+      vm3:
+        name: "kearns-vm3"
+      vm4:
+        name: "kearns-vm4"
+      vm5:
+        name: "kearns-vm5"
+      vm6:
+        name: "kearns-vm6"
+      vm7:
+        name: "kearns-vm7"
+      vm8:
+        name: "kearns-vm8"
+      vm9:
+        name: "kearns-vm9"
+  roles:
+    - kvm/create 
+
+# add POD to MAAS
+- hosts: prime-1
+  vars:
+    maas:
+      profile: "majduk"
+      pods: 
+        - kearns
+  roles:
+    - maas/create_pods
+
+# tag POD nodes
+- hosts: prime-1
+  connection: local
+  vars:
+    maas:
+      profile: "majduk"
+      pod: kearns
+  tasks:
+    - name: Get tags list
+      command: /usr/bin/maas "{{maas.profile}}" tags read
+      register: existing_tags
+    
+    - name: Build tags list
+      set_fact:
+        existing_tags: "{{ existing_tags.stdout |from_json }}"
+    
+    - name: Build tags list
+      set_fact:
+        existing_tags: "{{ existing_tags|map(attribute='name')|list }}"
+        new_tags: "{{[]}}"
+    
+    - name: List of tags to add
+      set_fact:
+        new_tags: "{{new_tags + [ item ] }}"
+      with_items: "{{maas.pod}}"
+      when: item not in existing_tags
+
+    - name: Add tags to MAAS 
+      command: /usr/bin/maas "{{maas.profile}}" tags create name='{{item}}'
+      with_items: "{{new_tags}}"
+
+    - name: Get available nodes
+      command: /usr/bin/maas "{{maas.profile}}" machines read
+      register: machines
+    
+    - name: Save nodes
+      set_fact:
+         machines: "{{ machines.stdout|from_json|list }}"
+
+    - name: Save Pod nodes
+      set_fact:
+        pod_machines: "{{ pod_machines| default({})|combine({item.hostname:item.system_id}) }}"
+      with_items: '{{machines}}'
+      when: item.pod is defined and item.pod != None and item.pod.name == "{{maas.pod}}"
+
+    - debug:  var=pod_machines
+
+    - name: Setting node tags
+      command: /usr/bin/maas {{maas.profile}} tag update-nodes {{maas.pod}} add='{{item.value}}'
+      with_dict: "{{pod_machines}}"
+
