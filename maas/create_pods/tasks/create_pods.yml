@@ -1,0 +1,8 @@
+---
+- name: Create pod
+  shell: maas {{maas.profile}} pods create name={{pod}} type=virsh power_address=qemu+ssh://{{ansible_env.USER}}@{{pod}}/system
+  when: pod not in maas_pods
+
+- name: Refresh pod
+  shell: maas {{maas.profile}} pod refresh {{maas_pods[pod]}}
+  when: pod in maas_pods

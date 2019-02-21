@@ -1,0 +1,6 @@
+---
+- include: get_pods.yml
+- include: create_pods.yml
+  with_items: "{{maas.pods}}"
+  loop_control:
+    loop_var: pod

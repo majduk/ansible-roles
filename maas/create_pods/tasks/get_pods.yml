@@ -1,0 +1,9 @@
+--- 
+- name: Get Pods
+  command: maas {{maas.profile}} pods read
+  register: pods_output
+
+- name: Save pods
+  set_fact: 
+    maas_pods: "{{ maas_pods | default({}) | combine({item.name:item.id}) }}"
+  with_items: "{{ (pods_output.stdout|from_json)| json_query('[].{name:name,id:id}') }}"
