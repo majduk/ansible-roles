@@ -1,5 +1,4 @@
 ---
 - name: Start domain "{{ result_domain_name }}"
   command: "virsh start {{ result_domain_name }}"
-  when: not vm.define_only
 

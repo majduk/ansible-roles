@@ -1,26 +1,62 @@
 ---
 - debug: var=vm
-- include: get_running.yml
-- include: naming.yml
-- include: shutdown.yml
-  when: cloud_deployer_force and (vm.name in existing_vms)
-- include: undefine.yml
-  when: cloud_deployer_force and (vm.name in existing_vms)
-- include: delete_image.yml
-  when: cloud_deployer_force and (vm.name in existing_vms) and (vm.disk_size is defined)
-- include: create_image.yml
-  when: cloud_deployer_force or not (vm.name in existing_vms) and (vm.disk_size is defined)
-- include: create_volumes.yml
-  when: cloud_deployer_force or not (vm.name in existing_vms) and (vm.disk_size is defined)
-- include: ubuntu_cloud_config.yml
-  when: (cloud_deployer_force or not (vm.name in existing_vms)) and (not vm.distro is defined or vm.distro=='ubuntu')
-- include: centos_cloud_config.yml
-  when: (cloud_deployer_force or not (vm.name in existing_vms)) and (vm.distro is defined and vm.distro=='centos')
-- include: create_domain.yml
-  when: cloud_deployer_force or not (vm.name in existing_vms)
-- include: autostart.yml
-  when: cloud_deployer_force or not (vm.name in existing_vms)
-- include: start_domain.yml
-  when: cloud_deployer_force or not (vm.name in existing_vms)
-- include: wait_for_vm.yml 
-  when: cloud_deployer_force or not (vm.name in existing_vms)
+
+- name: Get all running VMs
+  include: get_running.yml
+
+- name: Set VM name
+  include: naming.yml
+
+- set_fact:
+    vm_exists: "{{ vm.name in existing_vms }}"
+
+- set_fact:
+    deploy_vm: "{{ (vm_exists and vm.force_redeploy) or not vm_exists}}"
+
+
+- debug:
+    msg: "VM exists: {{vm_exists}}, deploy: {{deploy_vm}}"
+
+- name: Shutdown running VM
+  include: shutdown.yml
+  when: vm_exists and deploy_vm
+
+- name: Undefine VM
+  include: undefine.yml
+  when: vm_exists and deploy_vm
+
+- name: Delete image
+  include: delete_image.yml
+  when: vm_exists and deploy_vm
+
+- name: Create VM image
+  include: create_image.yml
+  when: deploy_vm and (vm.disk_size is defined and (vm.distro is defined and vm.distro!='none' ))
+
+- name: Create VM volumes
+  include: create_volumes.yml
+  when: deploy_vm and (vm.volumes is defined)
+
+- name: Create cloud config - Ubuntu
+  include: ubuntu_cloud_config.yml
+  when: deploy_vm and (vm.distro is defined and vm.distro=='ubuntu')
+
+- name: Create cloud config - Centos
+  include: centos_cloud_config.yml
+  when: deploy_vm and (vm.distro is defined and vm.distro=='centos')
+
+- name: Create domain.xml
+  include: create_domain.yml
+  when: deploy_vm
+
+- name: Enable autostart
+  include: autostart.yml
+  when: deploy_vm
+
+- name: Start VM
+  include: start_domain.yml
+  when: deploy_vm and not vm.define_only
+
+- name: Wait for VM to boot up
+  include: wait_for_vm.yml 
+  when: deploy_vm and (vm.ip is defined and not vm.define_only)

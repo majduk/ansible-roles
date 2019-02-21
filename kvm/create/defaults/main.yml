@@ -1,5 +1,6 @@
 ---
 default_vm:
+    force_redeploy: false
     # Domain info
     domain_groups: [] 
     domain_name: 
