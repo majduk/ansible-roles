@@ -1,0 +1,55 @@
+---
+- name: Check pool state
+  shell: "virsh pool-list | grep '^ {{virt_pool.key}} ' | awk '{ print $2 }'"
+  register: pool_list_output
+
+- name: "Extract pool state"
+  set_fact: 
+    pool_state: "{%if pool_list_output.stdout_lines%}{{ pool_list_output.stdout_lines[0]}}{%endif%}"
+
+- name: List all partitions
+  shell: "awk '{ print $4 }' /proc/partitions | tail -n +3"
+  register: partition_list_output
+
+- set_fact:
+    mounted_partitions: "{{[]}}"
+
+- name: "Extract mounts"
+  set_fact:
+    mounted_partitions: 
+      "{{mounted_partitions
+       + [ item.split('/')[2] ]  
+       + [ item.split('/')[2]|regex_replace('[0-9]','') ]  
+      }}"
+  with_items: "{{ansible_mounts | json_query('[].device') | list }}"
+
+- set_fact:
+    available_partitions: "{{[]}}"
+
+- name: "Set available partitions"
+  set_fact: 
+    available_partitions: "{{ available_partitions + [ '/dev/' + item ] }}"
+  with_items: "{{partition_list_output.stdout_lines}}"
+  when:
+    item not in mounted_partitions
+
+- name: Create storage pool template
+  template:
+    src: storage-pool-lvm.xml.j2
+    dest: /tmp/storage-pool-lvm.xml
+  when: pool_state == ""
+
+- name: Define pool
+  shell: virsh pool-define /tmp/storage-pool-lvm.xml
+  when: pool_state == ""
+
+- name: Build pool
+  shell: virsh pool-build {{virt_pool.key}}
+  when: pool_state != "active"
+
+- name: Start pool
+  shell: virsh pool-start {{virt_pool.key}}
+  when: pool_state != "active"
+
+- name: Autostart pool
+  shell: virsh pool-autostart {{virt_pool.key}}

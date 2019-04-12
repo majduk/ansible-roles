@@ -1,16 +1,18 @@
 <pool type="logical">
-  <name>{{virt_pool_name}}</name>
+  <name>{{virt_pool.key}}</name>
   <source>
-    <device path="/dev/sdb"/>
-    <device path="/dev/sdc"/>
-    <device path="/dev/sdd"/>
-    <device path="/dev/sde"/>
-    <device path="/dev/sdf"/>
-    <device path="/dev/sdg"/>
-    <device path="/dev/sdh"/>
+{% if virt_pool.value.all_devices is defined and virt_pool.value.all_devices %}
+{% for device in available_partitions %}
+    <device path="{{device}}"/>
+{% endfor %}
+{% else %}
+{% for device in virt_pool.value.devices %}
+    <device path="{{device}}"/>
+{% endfor %}
+{% endif %}
   </source>
   <target>
-    <path>/dev/{{virt_pool_name}}</path>
+    <path>/dev/{{virt_pool.key}}</path>
   </target>
 </pool>
 

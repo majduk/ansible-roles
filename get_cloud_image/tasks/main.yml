@@ -1,4 +1,8 @@
 ---
+- name: Ensure images directory
+  file:
+    path: "{{cd_images_path}}"
+    state: directory
 - include: hash_and_gpg.yml
   when: cd_check_hash_and_signature 
 - include: download.yml

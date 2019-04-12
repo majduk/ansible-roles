@@ -1,7 +1,9 @@
 ---
 kvm:
-  pools: 
-    - libvirtVG
+  pools:
+    logical:
+      libvirtVG:
+        all_devices: true
   nets:
     - oam
     - prod

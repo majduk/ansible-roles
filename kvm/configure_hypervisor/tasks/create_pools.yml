@@ -1,29 +1,5 @@
 ---
-- name: Check pool state
-  shell: "virsh pool-list | grep '^ {{virt_pool_name}} ' | awk '{ print $2 }'"
-  register: pool_list_output
-
-- name: "Extract pool state"
-  set_fact: 
-    pool_state: "{%if pool_list_output.stdout_lines%}{{ pool_list_output.stdout_lines[0]}}{%endif%}"
-
-- name: Create storage pool template
-  template:
-    src: storage-pool-lvm.xml.j2
-    dest: /tmp/storage-pool-lvm.xml
-  when: pool_state == ""
-
-- name: Define pool
-  shell: virsh pool-define /tmp/storage-pool-lvm.xml
-  when: pool_state == ""
-
-- name: Build pool
-  shell: virsh pool-build {{virt_pool_name}}
-  when: pool_state != "active"
-
-- name: Start pool
-  shell: virsh pool-start {{virt_pool_name}}
-  when: pool_state != "active"
-
-- name: Autostart pool
-  shell: virsh pool-autostart {{virt_pool_name}}
+- include: create_pool_logical.yml
+  with_dict: "{{kvm.pools.logical}}"
+  loop_control:
+    loop_var: virt_pool
