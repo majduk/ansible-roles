@@ -11,6 +11,10 @@
   shell: "awk '{ print $4 }' /proc/partitions | tail -n +3"
   register: partition_list_output
 
+- name: List partitioned devices
+  shell: "awk '/[0-9]$/ { gsub(\"[0-9]+$\",\"\", $4); print $4 }' /proc/partitions"
+  register: partitioned_devices_output
+
 - set_fact:
     mounted_partitions: "{{[]}}"
 
@@ -19,9 +23,11 @@
     mounted_partitions: 
       "{{mounted_partitions
        + [ item.split('/')[2] ]  
-       + [ item.split('/')[2]|regex_replace('[0-9]','') ]  
       }}"
   with_items: "{{ansible_mounts | json_query('[].device') | list }}"
+
+- set_fact:
+    skip_partitions: "{{ mounted_partitions + partitioned_devices_output.stdout_lines }}"
 
 - set_fact:
     available_partitions: "{{[]}}"
@@ -31,7 +37,7 @@
     available_partitions: "{{ available_partitions + [ '/dev/' + item ] }}"
   with_items: "{{partition_list_output.stdout_lines}}"
   when:
-    item not in mounted_partitions
+    item not in skip_partitions
 
 - name: Create storage pool template
   template:
