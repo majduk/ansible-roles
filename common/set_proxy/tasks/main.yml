@@ -1,4 +1,10 @@
 ---
+- name: Create snapd override
+  file:
+    path: /etc/systemd/system/snapd.service.d
+    state: directory
+  when: ansible_distribution_release == "bionic"
+    
 - name: Set snapd proxy
   copy:
     dest: /etc/systemd/system/snapd.service.d/override.conf
@@ -19,13 +25,11 @@
     regexp: https_proxy
     line: https_proxy={{ proxy_env.https_proxy }}
 
-- name: reload systemd
+- name: Reload systemd
   sudo: yes
   command: systemctl daemon-reload
   when: ansible_distribution_release == "bionic"
 
-- name: Reload snapd
-  service:
-    name: snapd
-    state: restarted
+- name: Start snapd
+  command: service snapd restart
   when: ansible_distribution_release == "bionic"
