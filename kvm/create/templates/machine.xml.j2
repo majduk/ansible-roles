@@ -69,6 +69,7 @@
       <driver name='qemu' type='raw'/>
       <source file='/dev/{{vm.pool}}/{{result_domain_name}}-{{ vol }}'/>
       <target dev='{{ vol }}' bus='virtio'/>
+      <serial>{{ vol }}{{result_domain_name}}</serial>
     </disk>
 {%   endfor %}
 {% endif %}
